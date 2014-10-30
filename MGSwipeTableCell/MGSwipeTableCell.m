@@ -269,7 +269,7 @@
 -(instancetype) init
 {
     if (self = [super init]) {
-        self.transition = MGSwipeTransitionBorder;
+        self.transition = MGSwipeTransitionStatic;
         self.threshold = 0.5;
         self.offset = 0;
     }
