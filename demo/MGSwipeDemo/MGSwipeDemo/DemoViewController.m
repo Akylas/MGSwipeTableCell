@@ -15,6 +15,7 @@
     UIBarButtonItem * prevButton;
     UITableViewCellAccessoryType accessory;
     UIImageView * background; //used for transparency test
+    BOOL allowMultipleSwipe;
 }
 
 
@@ -63,6 +64,10 @@
         }
         [_tableView reloadData];
     }
+    else if (buttonIndex == 5) {
+        allowMultipleSwipe = !allowMultipleSwipe;
+        [_tableView reloadData];
+    }
     else {
         UIStoryboard *sb = [UIStoryboard storyboardWithName:@"autolayout_test" bundle:nil];
         DemoViewController *vc = [sb instantiateInitialViewController];
@@ -79,6 +84,7 @@
     [sheet addButtonWithTitle:@"Multiselect test"];
     [sheet addButtonWithTitle:@"Change accessory button"];
     [sheet addButtonWithTitle:@"Transparency test"];
+    [sheet addButtonWithTitle: allowMultipleSwipe ?  @"Single Swipe" : @"Multiple Swipe"];
     if (!_testingStoryboardCell) {
         [sheet addButtonWithTitle:@"Storyboard test"];
     }
@@ -132,7 +138,8 @@
     {
         MGSwipeButton * button = [MGSwipeButton buttonWithTitle:titles[i] backgroundColor:colors[i] callback:^BOOL(MGSwipeTableCell * sender){
             NSLog(@"Convenience callback received (right).");
-            return YES;
+            BOOL autoHide = i != 0;
+            return autoHide; //Don't autohide in delete button to improve delete expansion animation
         }];
         [result addObject:button];
     }
@@ -174,6 +181,7 @@
     cell.detailTextLabel.text = data.detailTitle;
     cell.accessoryType = accessory;
     cell.delegate = self;
+    cell.allowsMultipleSwipe = allowMultipleSwipe;
     
     if (background) { //transparency test
         cell.backgroundColor = [UIColor clearColor];
@@ -235,6 +243,7 @@
         NSIndexPath * path = [_tableView indexPathForCell:cell];
         [tests removeObjectAtIndex:path.row];
         [_tableView deleteRowsAtIndexPaths:@[path] withRowAnimation:UITableViewRowAnimationLeft];
+        return NO; //Don't autohide to improve delete expansion animation
     }
     
     return YES;
